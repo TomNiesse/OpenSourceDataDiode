@@ -81,6 +81,7 @@ pub struct Handler {
     incoming_socket: Option<String>,
     outgoing_socket: Option<String>,
     udp_port_option: Option<u16>,
+    tcp_port_option: Option<u16>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -117,6 +118,9 @@ impl Handler {
         //if "open_udp_port" is given to the handler then publish on the same port
         if let Some(port) = self.udp_port_option {
             command.args(&[format!("--publish={port}:{port}/udp")]);
+        }
+        if let Some(port) = self.tcp_port_option {
+            command.args(&[format!("--publish={port}:{port}")]);
         }
 
         //short name is needed for the correct naming format

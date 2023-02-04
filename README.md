@@ -1,5 +1,4 @@
 ## The Open Source Data Diode
-
 ## 1. Introduction 'Open Source Data Diode'
 This repository is home to the Open Source Data Diode.
 
@@ -17,7 +16,6 @@ The OSDD demonstrator was developed in a collaboration between the Cyber Innovat
 
 
 ## 2. Policy
-
 ### Standard for Public Code
 We adhere to the Standard for Public Code as defined by the Foundation for Public Code. We ask our contributors to endorse this standard as well.
 For the full information, please check https://standard.publiccode.net/
@@ -33,7 +31,6 @@ A video introduction to Standard for Public Code from Creative Commons Global Su
 ### Guidelines for developers
 To be added
 
-
 ### About the Cyber Innovation Hub
 The Cyber Innovation Hub, established in 2019 from the Ministry of Defence, ensures that departments, research institutions and companies work together on joint security issues within the field of cyber (security). The aim is to strengthen cyber knowledge and skills in the Netherlands, facilitate innovations and experiments and build an ecosystem of cyber experts, innovators and other partners to reduce cyber threats.
 
@@ -44,15 +41,29 @@ A data diode is a device that physically enforces uni-directional (one-way) netw
 The Cyber Innovation Hub is included in the Defence Cyber Strategy ([Defensie Cyber Strategie](https://www.defensie.nl/binaries/defensie/documenten/publicaties/2018/11/12/defensie-cyber-strategie-2018/web_Brochure+Defensie+Cyber+Strategie.pdf)) 2018 Dutch Cyber Security Agenda ([Nederlandse Cybersecurity Agenda (NCSA)](https://www.ncsc.nl/onderwerpen/nederlandse-cyber-security-agenda)) 2020. 
 
 ## 3. Instructions
-
-### Build
-Make sure a recent Rust compiler (recently tested with 1.45) and Docker are installed.
-
-You also need MUSL support for RUST: 
-```sh
-rustup target add x86_64-unknown-linux-musl
+## Preparing the Ubuntu-based development machine
+### Install Docker and Rust
+#### Rust
+```bash
+# When asked, choose "Default installation".
+curl https://sh.rustup.rs | sh
 ```
 
+After Rust is installed, add extra build targets:
+
+```bash
+rustup target add x86_64-unknown-linux-musl # optional
+rustup target add aarch64-unknown-linux-gnu # optional
+```
+
+#### Docker
+```bash
+sudo apt install docker.io
+sudo usermod -aG docker $USER
+sudo reboot
+```
+
+## Building the framework
 Run the build script in the scripts folder:
 ```sh
 cd scripts
@@ -63,7 +74,7 @@ This scripts builds the repository in release and in MUSL release, it create doc
 
 Copy the tars to your target systems, unpack them and install the *osdd* service. Match the configuration file to your system and start the osdd service.
 
-### Result
+### Build result
 This build results in two tar files, one for the ingress proxy, one for the egress proxy. Both tar files contain the OSDD service (executable and definition) and a bunch of exported docker containers. 
 
 ### Installation
@@ -89,15 +100,14 @@ We use GitHub issues to track public bugs. Report a bug by opening a new issue.
 The roadmap shows what we are working on and some of the things we have done. The roadmap is only a small guide. It does not cover everything we do, and some things may change. You can contact Kor Gerritsma (kj.gerritsma@mindef.nl) if you have any questions about the roadmap or suggestions for new features.
 
 ### Things we're working on
-Now
+#### Now
 - Updating the OSDD-repository to meet the Standard of Public Code (and make it as accessible as possible for contributors)
 - Engaging with several developing parties to further work on the source code: next up is a workshop to further elaborate on the roadmap and governance file
 - Make the OSDD-repository open for everyone to contribute
 
-Next
+#### Next
 - Organise a workshop with all stakeholders involved (and the Foundation for Public Code) to form the first use case
 - Participate at a hackaton to further develop the source code of the OSDD
-
 
 ## 5. Contributing, authors and acknowledgement
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated. 
@@ -110,7 +120,6 @@ We’re using Discussions as a place to connect with other members of our commun
 
 
 ## 6. License Information
-
 The license is Apache 2.
 
 Branches are free to distribute and publish on discretion of the repective branche owner/moderator.

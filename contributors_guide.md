@@ -11,7 +11,7 @@ We want to make contributing to this project as easy and transparent as possible
 Contributions should follow the requirements set out in the criteria of the [Standard for Public code](https://standard.publiccode.net/). Reviewers will also be ensuring that contributions are aligned with the [values of public code](https://standard.publiccode.net/introduction.html#values-of-public-code).
 
 ## We Develop with GitHub
-We use HitHub to host code, to track issues and feature requests, as well as accept pull requests.
+We use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
 
 If you never used GitHub, get up to speed with [understanding the GitHub Flow](https://guides.github.com/introduction/flow/)
 or follow one of the great free interactive courses in the
