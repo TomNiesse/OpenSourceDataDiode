@@ -1,6 +1,6 @@
 #!/bin/bash
 cargo build --release --all
-cargo build --target x86_64-unknown-linux-musl --release
+cargo build --target x86_64-unknown-linux-gnu --release
 
 ./create_images.sh
 
