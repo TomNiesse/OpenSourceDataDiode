@@ -117,7 +117,7 @@ fn main() {
             Err(e) => log::error!("error while polling kafka: {}", e),
         }
         if new_data {
-            println!("total bytes received: {}", bytes_count,);
+            println!("total bytes received: {bytes_count}",);
         }
         match consumer.commit_consumed() {
             Ok(_) => (),
@@ -138,7 +138,7 @@ pub fn setup_consumer(
     host: &str,
     port: &str,
 ) -> Result<Consumer, kafka::error::Error> {
-    let host_port = format!("{}:{}", host, port);
+    let host_port = format!("{host}:{port}");
     Consumer::from_hosts(vec![host_port])
         .with_topic(topic.to_owned())
         //[OSSD-17]: Alle vs laatste berichten

@@ -51,7 +51,7 @@ fn main() {
         .create()
         .expect("Can't create producer");
 
-    if opt.auto != (0 as usize) {
+    if opt.auto != 0_usize {
         let mut record_array: Vec<Record<(), Vec<u8>>> = Vec::with_capacity(opt.auto);
         let mut bytes_counter = 0;
         for _ in 0..opt.auto {

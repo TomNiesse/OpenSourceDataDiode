@@ -35,7 +35,7 @@ impl BufferedSocketWriter {
             log::error!("Error removing socket file at {}: {}", path, e);
         };
         Ok(BufferedSocketWriter {
-            stream: create_stream(&path)?,
+            stream: create_stream(path)?,
             path: path.to_string(),
         })
     }

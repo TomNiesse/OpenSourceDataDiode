@@ -110,7 +110,7 @@ pub fn udp_sender_thread(
 ) -> Result<()> {
     socket
         .connect(receiver_addr.to_string())
-        .chain_err(|| format!("Failed connect to socket address: {}", receiver_addr))?;
+        .chain_err(|| format!("Failed connect to socket address: {receiver_addr}"))?;
     let mut sequence_number: u32 = 0;
     send_startup_messages(&socket, &mut sequence_number);
     while !(should_stop.load(Ordering::SeqCst)) {

@@ -60,7 +60,7 @@ fn kafka_egress() -> Result<()> {
 
     //[OSDD-46]
     Command::new("/bin/sh")
-        .args(&["-c"])
+        .args(["-c"])
         .args(&[format!(
             "echo '{} kafka-server-rx' >> /etc/hosts",
             opt.host_kafka_server

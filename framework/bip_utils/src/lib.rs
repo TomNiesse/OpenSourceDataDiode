@@ -25,7 +25,7 @@ pub fn write_to_bip_buffer(writer: &mut BipBufferWriter, buffer: &[u8]) {
     let byte_len = buffer.len().to_le_bytes();
     reservation[0..BIP_BUFFER_LEN_FIELD_LEN].copy_from_slice(&byte_len);
     reservation[BIP_BUFFER_LEN_FIELD_LEN..buffer.len() + BIP_BUFFER_LEN_FIELD_LEN]
-        .copy_from_slice(&buffer);
+        .copy_from_slice(buffer);
     reservation.send();
 }
 
@@ -71,7 +71,7 @@ pub fn wait_for_data(reader: &mut BipBufferReader, bytes: usize) {
     let mut spin_count = 0;
     while reader.valid().len() < (bytes) {
         if spin_count < 100_000 {
-            std::sync::atomic::spin_loop_hint();
+            std::hint::spin_loop();
             spin_count += 1;
         } else {
             std::thread::sleep(std::time::Duration::from_millis(100));
@@ -107,7 +107,7 @@ mod tests {
         let bip_buffer = receiver_reader.valid();
         let received_message = &bip_buffer[..element_length];
         //compare the sent buffer to the buffer that was received.
-        assert_eq!(&send_buffer[..], &received_message[..]);
+        assert_eq!(send_buffer, received_message);
         assert_eq!(send_buffer.len(), received_message.len());
         receiver_reader.consume(element_length);
     }

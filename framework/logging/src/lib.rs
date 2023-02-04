@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::errors::*;
-use log;
+
 use std::net::SocketAddr;
 use std::str::FromStr;
 use syslog::Facility;
@@ -31,10 +31,10 @@ pub fn set_syslog(
     process_name: &str,
 ) -> Result<()> {
     //Parse the socketsadresses
-    let from_host: SocketAddr = format!("{}:{}", from_host_sys_log, from_port_sys_log)
+    let from_host: SocketAddr = format!("{from_host_sys_log}:{from_port_sys_log}")
         .parse()
         .chain_err(|| "Cant convert host and port to a socket addres")?;
-    let to_host: SocketAddr = format!("{}:{}", to_host_sys_log, to_port_sys_log)
+    let to_host: SocketAddr = format!("{to_host_sys_log}:{to_port_sys_log}")
         .parse()
         .chain_err(|| "Cant convert host and port to a socket addres")?;
 
@@ -45,7 +45,7 @@ pub fn set_syslog(
         process_name.to_string(),
         //TODO: Is it the right facility?
         Facility::LOG_USER,
-        log::Level::from_str(&log_level_string)
+        log::Level::from_str(log_level_string)
             .chain_err(|| "Cant convert log_level_string to loglevel")?
             .to_level_filter(),
     )?;

@@ -68,13 +68,13 @@ pub struct StatsAllHandlers {
 
 impl StatisticData for StatsAllHandlers {
     fn fill_pipeline(&self, pipeline: &mut Pipeline) {
-        pipeline.count(&"in.bytes", self.in_bytes.get_and_reset());
-        pipeline.count(&"in.packets", self.in_packets.get_and_reset());
-        pipeline.count(&"out.bytes", self.out_bytes.get_and_reset());
-        pipeline.count(&"out.packets", self.out_packets.get_and_reset());
-        pipeline.count(&"dropped.bytes", self.dropped_bytes.get_and_reset());
-        pipeline.count(&"dropped.packets", self.dropped_packets.get_and_reset());
-        pipeline.count(&"packetloss", self.packetloss.get_and_reset());
+        pipeline.count("in.bytes", self.in_bytes.get_and_reset());
+        pipeline.count("in.packets", self.in_packets.get_and_reset());
+        pipeline.count("out.bytes", self.out_bytes.get_and_reset());
+        pipeline.count("out.packets", self.out_packets.get_and_reset());
+        pipeline.count("dropped.bytes", self.dropped_bytes.get_and_reset());
+        pipeline.count("dropped.packets", self.dropped_packets.get_and_reset());
+        pipeline.count("packetloss", self.packetloss.get_and_reset());
         if let Some(x) = &self.custom_counter {
             pipeline.count(&x.1, x.0.get_and_reset());
         }

@@ -67,7 +67,7 @@ impl SocketWriter {
         let byte_len = buffer.len().to_le_bytes();
         stream_buffer[..BIP_BUFFER_LEN_FIELD_LEN].copy_from_slice(&byte_len);
         stream_buffer[BIP_BUFFER_LEN_FIELD_LEN..buffer.len() + BIP_BUFFER_LEN_FIELD_LEN]
-            .copy_from_slice(&buffer);
+            .copy_from_slice(buffer);
         self.stream
             .write(&stream_buffer)
             .chain_err(|| "Socket writer could not write to socket")?;

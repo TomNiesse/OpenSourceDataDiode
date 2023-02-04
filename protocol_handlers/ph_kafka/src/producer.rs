@@ -41,7 +41,7 @@ impl EgressProducer {
         out_replacement: String,
         stats_data: Arc<StatsAllHandlers>,
     ) -> Result<EgressProducer> {
-        let host_port = format!("{}:{}", host, port);
+        let host_port = format!("{host}:{port}");
         info!("Try to connect with kafka server: {}", host_port);
         let producer = Producer::from_hosts(vec![host_port]).create();
 
@@ -61,12 +61,12 @@ impl EgressProducer {
     /// * `bip_reader` - The BipBufferReader used to get data from the bip_buffer.
     pub fn get_data_from_bipbuffer_and_send_data_to_kafka(
         &mut self,
-        mut bip_reader: &mut BipBufferReader,
+        bip_reader: &mut BipBufferReader,
     ) -> Result<()> {
         let mut buffer = [0; BUFFER_SIZE_BYTES];
 
         loop {
-            let element_length = read_from_bip_buffer(&mut bip_reader, &mut buffer);
+            let element_length = read_from_bip_buffer(bip_reader, &mut buffer);
             self.deserialize_incoming_data_and_send_to_kafka(&buffer[..element_length])?;
         }
     }
@@ -78,7 +78,7 @@ impl EgressProducer {
         self.stats_data.in_bytes.add(incoming_data.len() as u64);
         self.stats_data.in_packets.add(1);
 
-        if let Ok(kafka_message) = KafkaMessage::deserialize_packet(&incoming_data) {
+        if let Ok(kafka_message) = KafkaMessage::deserialize_packet(incoming_data) {
             let topic = self.replace_topic(kafka_message.topic.to_string());
             let kafka_message_length = kafka_message.payload.len();
             match self

@@ -54,11 +54,11 @@ fn udp_receive() -> Result<()> {
     let opt = OptReceiver::from_args();
     //Setup the logging to syslog for this application.
     set_syslog(
-        &opt.from_host_sys_log.to_string(),
+        &opt.from_host_sys_log,
         &opt.from_port_sys_log.to_string(),
-        &opt.to_host_sys_log.to_string(),
+        &opt.to_host_sys_log,
         &opt.to_port_sys_log.to_string(),
-        &opt.log_level.to_string(),
+        &opt.log_level,
         &opt.handler_name,
     )
     .chain_err(|| "Error initializing syslog")?;
@@ -66,7 +66,7 @@ fn udp_receive() -> Result<()> {
 
     //sets the niceness of the application.
     Command::new("renice")
-        .args(&["-n", "-10", "-p", &process::id().to_string()])
+        .args(["-n", "-10", "-p", &process::id().to_string()])
         .spawn()
         .chain_err(|| CommandError("renice".to_string()))?;
 
@@ -94,7 +94,7 @@ fn udp_receive() -> Result<()> {
         )
     })?;
 
-    let path = opt.socket_path.clone();
+    let path = opt.socket_path;
     //build the socket_writer thread.
     let socket_writer_thread_builder =
         std::thread::Builder::new().name("socket_writer_thread".into());

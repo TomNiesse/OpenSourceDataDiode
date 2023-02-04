@@ -22,10 +22,10 @@ pub fn set_syslog(
     to_port_sys_log: String,
 ) {
     //init sys log
-    let from_host: SocketAddr = format!("{}:{}", from_host_sys_log, from_port_sys_log)
+    let from_host: SocketAddr = format!("{from_host_sys_log}:{from_port_sys_log}")
         .parse()
         .expect("Can't convert stats server from config file to a socketadres");
-    let to_host: SocketAddr = format!("{}:{}", to_host_sys_log, to_port_sys_log)
+    let to_host: SocketAddr = format!("{to_host_sys_log}:{to_port_sys_log}")
         .parse()
         .expect("Can't convert stats server from config file to a socketadres");
     match syslog::init_udp(

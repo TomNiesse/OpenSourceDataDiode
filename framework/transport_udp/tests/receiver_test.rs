@@ -41,7 +41,7 @@ fn send_message() {
     //send over udp
     let (mut sender_writer, sender_reader) =
         spsc_bip_buffer::bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * 10);
-    let sender = UdpSender::new(sender_ip, sender_reader, 5, stats_data.clone())
+    let sender = UdpSender::new(sender_ip, sender_reader, 5, stats_data)
         .expect("cant create udp sender");
     sender.run(receiver_ip).expect("error");
 

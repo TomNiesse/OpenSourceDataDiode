@@ -72,21 +72,21 @@ pub fn read_toml(config_file: &str) -> Result<TomlConfig> {
                 "protocolhandler" => {
                     if let Some(protocol_handlers) = table.1.as_table() {
                         for handler in protocol_handlers {
-                            handlers.push(read_handler(handler, HandlerType::ProtocolHandler)?);
+                            handlers.push(read_handler(handler, HandlerType::Protocol)?);
                         }
                     }
                 }
                 "filterhandler" => {
                     if let Some(filter_handlers) = table.1.as_table() {
                         for filter in filter_handlers {
-                            handlers.push(read_handler(filter, HandlerType::FilterHandler)?);
+                            handlers.push(read_handler(filter, HandlerType::Filter)?);
                         }
                     }
                 }
                 "transporthandler" => {
                     if let Some(transport_handlers) = table.1.as_table() {
                         for transport in transport_handlers {
-                            handlers.push(read_handler(transport, HandlerType::TransportHandler)?);
+                            handlers.push(read_handler(transport, HandlerType::Transport)?);
                         }
                     }
                 }

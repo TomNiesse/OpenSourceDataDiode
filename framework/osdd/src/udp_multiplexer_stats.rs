@@ -28,9 +28,9 @@ pub fn run(stats_port: u16, stats_servers_string: Vec<String>) -> std::io::Resul
 }
 
 fn mutiplex(stats_port: u16, stats_servers_string: Vec<String>) -> Result<()> {
-    let socket_addres = format!("0.0.0.0:{}", stats_port);
+    let socket_addres = format!("0.0.0.0:{stats_port}");
     let socket = UdpSocket::bind(socket_addres.to_string())
-        .chain_err(|| format!("Binding udp socket on {}", socket_addres))?;
+        .chain_err(|| format!("Binding udp socket on {socket_addres}"))?;
 
     let mut buffer = [0; MAX_BUFFER_SIZE_BYTES];
     let mut stats_servers: Vec<SocketAddr> = Vec::new();

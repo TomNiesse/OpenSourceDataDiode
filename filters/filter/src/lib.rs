@@ -31,7 +31,7 @@ pub const BUFFER_SIZE_BYTES: usize = 1_050_000;
 pub fn filtering(
     buffer: &[u8; BUFFER_SIZE_BYTES],
     element_length: usize,
-    mut bip_writer_second: &mut BipBufferWriter,
+    bip_writer_second: &mut BipBufferWriter,
     word_to_filter: &str,
     stats_data: &Arc<statistics_handler::StatsAllHandlers>,
 ) {
@@ -46,17 +46,17 @@ pub fn filtering(
                             stats_data.dropped_packets.add(1);
                             stats_data.dropped_bytes.add(element_length as u64);
                         } else {
-                            write_to_bip_buffer(&mut bip_writer_second, &buffer[..element_length]);
+                            write_to_bip_buffer(bip_writer_second, &buffer[..element_length]);
                         }
                     }
                     //The the first x bytes of the incoming data is not utf8 then it cannot be checked and will be sent to the bipbuffer
                     Err(_) => {
-                        write_to_bip_buffer(&mut bip_writer_second, &buffer[..element_length])
+                        write_to_bip_buffer(bip_writer_second, &buffer[..element_length])
                     }
                 }
             //The data is smaller then the word_to_filter it will never match so it will be sent to the bipbuffer
             } else {
-                write_to_bip_buffer(&mut bip_writer_second, &buffer[..element_length])
+                write_to_bip_buffer(bip_writer_second, &buffer[..element_length])
             }
         }
         //The data cannot be converted to a kafka message. It is problably corrupted data so it will be dropped.

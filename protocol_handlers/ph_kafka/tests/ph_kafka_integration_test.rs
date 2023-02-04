@@ -210,7 +210,7 @@ impl TestData {
 
                 //check if sequence is correct length
                 for output_size in tempvec {
-                    assert_eq!(output_size, input_data.1 as usize);
+                    assert_eq!(output_size, { input_data.1 });
                 }
                 //if data available, reset new message set. Else stop testing
                 match input_data_iter.next() {
@@ -232,7 +232,7 @@ impl TestData {
 }
 
 fn setup_consumer(topic: &str, host: &String, port: u16) -> Result<Consumer, kafka::error::Error> {
-    let host_port = format!("{}:{}", host, port);
+    let host_port = format!("{host}:{port}");
     Consumer::from_hosts(vec![host_port])
         .with_topic(topic.to_owned())
         //for testing only the latests message needed
@@ -277,17 +277,17 @@ impl StadsDHandler {
                 };
                 let bytes = Vec::from(&buf[..len]);
                 let text = str::from_utf8(&bytes);
-                let objects = text.expect("Can't convert stads data to utf8").split("\n");
+                let objects = text.expect("Can't convert stads data to utf8").split('\n');
                 for object in objects {
                       //  println!("{}", object);
-                    let object_vec: Vec<&str> = object.split(":").collect();
+                    let object_vec: Vec<&str> = object.split(':').collect();
                         if object_vec.len() < 2 {
                             log::trace!(
                                 "error while reading stats udp packet. First part of message: {}",
                                 object_vec[0]
                             )
                         } else {
-                            match object_vec[1].split("|").collect::<Vec<&str>>()[0].parse() {
+                            match object_vec[1].split('|').collect::<Vec<&str>>()[0].parse() {
                                 Ok(number) => {
                     match object_vec[0] {
                         //e => log:info!("{} : {}", e, number),

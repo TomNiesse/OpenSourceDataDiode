@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Arguments for ph_udp
+///Arguments for ph_udp
 pub mod arguments;
 pub mod errors;
 
-///	The maximum size in bytes of a single bipbuffer message.
+///The maximum size in bytes of a single bipbuffer message.
 pub const MAX_BIP_BUFFER_MESSAGE_SIZE: usize = 1_050_000;
 
 ///The maximum size of the packet buffer.

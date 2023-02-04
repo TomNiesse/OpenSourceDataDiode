@@ -76,7 +76,7 @@ fn inner_udp_ingress() -> Result<()> {
         .chain_err(|| "Error creating socket writer")?;
 
     let (mut bip_writer, mut bip_reader) =
-        bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count as usize);
+        bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count);
 
     //Start stats thread
     let stats_addr = format!("{}:{}", opt.host_stats_server, opt.port_stats_server);

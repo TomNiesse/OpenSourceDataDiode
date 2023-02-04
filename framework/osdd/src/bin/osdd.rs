@@ -35,15 +35,14 @@ struct Opt {
 fn main() {
     panic::set_hook(Box::new(|panic_info| {
         if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
-            eprintln!("{}", s);
+            eprintln!("{s}");
             log::error!("{}", s);
         } else if let Some(s) = panic_info.payload().downcast_ref::<String>() {
-            eprintln!("{}", s);
+            eprintln!("{s}");
             log::error!("{}", s);
         } else {
             eprintln!(
-                "No payload available in panic info! printing panic info: {}",
-                panic_info
+                "No payload available in panic info! printing panic info: {panic_info}"
             );
             log::error!(
                 "No payload available in panic info! printing panic info: {}",
@@ -66,7 +65,7 @@ fn main() {
 fn osdd() -> Result<()> {
     let opt = Opt::from_args();
 
-    eprintln!("start {}", HANDLER_NAME_STRING);
+    eprintln!("start {HANDLER_NAME_STRING}");
 
     //Read handlers, settings_options and chains from the config file
     let toml_config = read_toml(&opt.config_file)?;
@@ -78,7 +77,7 @@ fn osdd() -> Result<()> {
 
     //Syslog is created after all settings are read from the toml file
     set_syslog(
-        &FROM_HOST_UDP_SYSLOG,
+        FROM_HOST_UDP_SYSLOG,
         &PORT_FROM_UDP_SYSLOG.to_string(),
         &toml_config.settings.syslog_host,
         &toml_config.settings.syslog_port,

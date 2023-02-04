@@ -59,7 +59,7 @@ fn outer_kafka_ingress() -> Result<()> {
 
     //[OSDD-46]
     Command::new("/bin/sh")
-        .args(&["-c"])
+        .args(["-c"])
         .args(&[format!(
             "echo '{} kafka-server-tx' >> /etc/hosts",
             opt.host_kafka_server
@@ -84,9 +84,9 @@ fn inner_kafka_ingress() -> Result<()> {
         .chain_err(|| "Error creating socket writer")?;
 
     let (mut bip_writer_first, mut bip_reader_first) =
-        bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count as usize);
+        bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count);
     let (mut bip_writer_second, mut bip_reader_second) =
-        bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count as usize);
+        bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count);
 
     //Start stats thread
     let stats_addr = format!("{}:{}", opt.host_stats_server, opt.port_stats_server);

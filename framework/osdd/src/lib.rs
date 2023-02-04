@@ -85,9 +85,9 @@ pub struct Handler {
 
 #[derive(PartialEq, Debug)]
 enum HandlerType {
-    TransportHandler,
-    FilterHandler,
-    ProtocolHandler,
+    Transport,
+    Filter,
+    Protocol,
 }
 
 ///A command with a name
@@ -106,24 +106,24 @@ impl Handler {
         settings: &Settings,
     ) -> Result<CommandWithName> {
         let mut command = Command::new("docker");
-        command.args(&["run"]);
-        command.args(&["-d"]);
+        command.args(["run"]);
+        command.args(["-d"]);
 
-        if self.handler_type == HandlerType::TransportHandler {
-            command.args(&["--network", "host"]);
-            command.args(&["--cap-add=sys_nice"]);
+        if self.handler_type == HandlerType::Transport {
+            command.args(["--network", "host"]);
+            command.args(["--cap-add=sys_nice"]);
         }
 
         //if "open_udp_port" is given to the handler then publish on the same port
         if let Some(port) = self.udp_port_option {
-            command.args(&[format!("--publish={}:{}/udp", port, port)]);
+            command.args(&[format!("--publish={port}:{port}/udp")]);
         }
 
         //short name is needed for the correct naming format
         let handler_type_short_name = match self.handler_type {
-            HandlerType::TransportHandler => "transport",
-            HandlerType::FilterHandler => "filter",
-            HandlerType::ProtocolHandler => "ph",
+            HandlerType::Transport => "transport",
+            HandlerType::Filter => "filter",
+            HandlerType::Protocol => "ph",
         };
 
         let chain_handler_name = format!(
@@ -131,23 +131,22 @@ impl Handler {
             &settings.instance, &settings.network, chain_name, handler_type_short_name, &self.name
         );
 
-        command.args(&["--name", &chain_handler_name]);
+        command.args(["--name", &chain_handler_name]);
 
         //mount sockets path
-        command.args(&[
+        command.args([
             "--mount",
             &format!(
-                "type=bind,source={},target={}",
-                PATH_PREFIX_UNIX_SOCKETS_ON_PROXY, PATH_PREFIX_UNIX_SOCKETS_IN_DOCKER
+                "type=bind,source={PATH_PREFIX_UNIX_SOCKETS_ON_PROXY},target={PATH_PREFIX_UNIX_SOCKETS_IN_DOCKER}"
             ),
         ]);
 
         //Removes the Container after stopping
-        command.args(&["--restart", "always"]);
+        command.args(["--restart", "always"]);
 
-        command.args(&["--entrypoint", &format!("./{}", &self.executable)]);
+        command.args(["--entrypoint", &format!("./{}", &self.executable)]);
 
-        command.args(&[&self.executable]);
+        command.args([&self.executable]);
         //Load all arguments
         for argument in &self.arguments {
             let dash_dash_argument = format!("--{}", argument.0);
@@ -156,28 +155,28 @@ impl Handler {
 
         //Arguments for sockets
         match self.handler_type {
-            HandlerType::ProtocolHandler | HandlerType::TransportHandler => {
-                command_socket_path_transport_protocol(&self, &mut command)?
+            HandlerType::Protocol | HandlerType::Transport => {
+                command_socket_path_transport_protocol(self, &mut command)?
             }
-            HandlerType::FilterHandler => command_socket_paths_filter(&self, &mut command)?,
+            HandlerType::Filter => command_socket_paths_filter(self, &mut command)?,
         };
 
         //Set standard arguments
-        if self.handler_type == HandlerType::ProtocolHandler
-            || self.handler_type == HandlerType::FilterHandler
+        if self.handler_type == HandlerType::Protocol
+            || self.handler_type == HandlerType::Filter
         {
-            command.args(&["--stats_server_address", "172.17.0.1"]);
+            command.args(["--stats_server_address", "172.17.0.1"]);
         } else {
-            command.args(&["--stats_server_address", "127.0.0.1"]);
+            command.args(["--stats_server_address", "127.0.0.1"]);
         }
-        command.args(&["--stats_server_port", &stats_port.to_string()]);
-        command.args(&["--from_host_sys_log", FROM_HOST_UDP_SYSLOG]);
-        command.args(&["--from_port_sys_log", &PORT_FROM_UDP_SYSLOG.to_string()]);
-        command.args(&["--to_host_sys_log", &settings.syslog_host]);
-        command.args(&["--to_port_sys_log", &settings.syslog_port]);
-        command.args(&["--handler_name", &chain_handler_name]);
+        command.args(["--stats_server_port", &stats_port.to_string()]);
+        command.args(["--from_host_sys_log", FROM_HOST_UDP_SYSLOG]);
+        command.args(["--from_port_sys_log", &PORT_FROM_UDP_SYSLOG.to_string()]);
+        command.args(["--to_host_sys_log", &settings.syslog_host]);
+        command.args(["--to_port_sys_log", &settings.syslog_port]);
+        command.args(["--handler_name", &chain_handler_name]);
 
-        command.current_dir(settings.path.to_string());
+        command.current_dir(&settings.path);
 
         Ok(CommandWithName {
             command,
@@ -220,12 +219,11 @@ pub fn create_commands_all_handlers(
                 Some(handler_config) => commands.push(handler_config.create_command(
                     &chain.name,
                     stats_multiplexer_listening_port_u16,
-                    &settings,
+                    settings,
                 )?),
                 None => {
                     return Err(ConfigurationError(format!(
-                        "Cannot find {} as handler in config",
-                        handler_to_create
+                        "Cannot find {handler_to_create} as handler in config"
                     ))
                     .into())
                 }
@@ -236,7 +234,7 @@ pub fn create_commands_all_handlers(
 }
 
 fn assign_sockets(
-    handlers_config: &mut Vec<Handler>,
+    handlers_config: &mut [Handler],
     process1: &str,
     process2: &str,
     chain_name: &str,
@@ -244,14 +242,12 @@ fn assign_sockets(
     match handlers_config.iter_mut().find(|x| x.name == process1) {
         Some(handler) => {
             handler.outgoing_socket = Some(format!(
-                "{}{}_{}_{}",
-                PATH_PREFIX_UNIX_SOCKETS_IN_DOCKER, chain_name, process1, process2
+                "{PATH_PREFIX_UNIX_SOCKETS_IN_DOCKER}{chain_name}_{process1}_{process2}"
             ))
         }
         None => {
             return Err(ConfigurationError(format!(
-                "Cannot find {} as handler in config",
-                process1
+                "Cannot find {process1} as handler in config"
             ))
             .into())
         }
@@ -260,14 +256,12 @@ fn assign_sockets(
     match handlers_config.iter_mut().find(|x| x.name == process2) {
         Some(handler) => {
             handler.incoming_socket = Some(format!(
-                "{}{}_{}_{}",
-                PATH_PREFIX_UNIX_SOCKETS_IN_DOCKER, chain_name, process1, process2
+                "{PATH_PREFIX_UNIX_SOCKETS_IN_DOCKER}{chain_name}_{process1}_{process2}"
             ))
         }
         None => {
             return Err(ConfigurationError(format!(
-                "Cannot find {} as handler in config",
-                process2
+                "Cannot find {process2} as handler in config"
             ))
             .into())
         }
@@ -279,14 +273,14 @@ fn assign_sockets(
 fn command_socket_path_transport_protocol(handler: &Handler, command: &mut Command) -> Result<()> {
     let socket_path = match &handler.incoming_socket {
         Some(x) => x,
-        None => &handler.outgoing_socket.as_ref().chain_err(|| {
+        None => handler.outgoing_socket.as_ref().chain_err(|| {
             ConfigurationError(format!(
                 "Cannot bind {} to other handler in chain",
                 handler.name
             ))
         })?,
     };
-    command.args(&["--socket_path", &socket_path]);
+    command.args(["--socket_path", socket_path]);
     Ok(())
 }
 fn command_socket_paths_filter(handler: &Handler, command: &mut Command) -> Result<()> {
@@ -296,13 +290,13 @@ fn command_socket_paths_filter(handler: &Handler, command: &mut Command) -> Resu
             handler.name
         ))
     })?;
-    command.args(&["--socket_path_in", &incoming_socket]);
+    command.args(["--socket_path_in", incoming_socket]);
     let outgoing_socket = handler.outgoing_socket.as_ref().chain_err(|| {
         ConfigurationError(format!(
             "Cannot bind {} to other handler in chain",
             handler.name
         ))
     })?;
-    command.args(&["--socket_path_out", &outgoing_socket]);
+    command.args(["--socket_path_out", outgoing_socket]);
     Ok(())
 }

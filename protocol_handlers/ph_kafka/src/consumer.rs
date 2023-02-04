@@ -47,7 +47,7 @@ impl IngressConsumer {
         max_bytes: usize,
         stats_data: Arc<StatsAllHandlers>,
     ) -> Result<IngressConsumer> {
-        let host_port = format!("{}:{}", host, port);
+        let host_port = format!("{host}:{port}");
         match Consumer::from_hosts(vec![host_port])
             .with_topic(topic.to_owned())
             //[OSSD-17]: Alle vs laatste berichten
@@ -158,7 +158,7 @@ pub fn serialize_between_bip_buffers(
     let kafka_msg = KafkaMessage::new(
         &buf[OFFSET_HEADER..length],
         i64::from_be_bytes(offset_bytes),
-        &topic,
+        topic,
     );
 
     match kafka_msg.serialize_packet(&mut buf) {

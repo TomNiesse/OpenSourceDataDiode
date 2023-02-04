@@ -53,11 +53,11 @@ fn main() {
 fn udp_send() -> Result<()> {
     let opt = OptSender::from_args();
     set_syslog(
-        &opt.from_host_sys_log.to_string(),
+        &opt.from_host_sys_log,
         &opt.from_port_sys_log.to_string(),
-        &opt.to_host_sys_log.to_string(),
+        &opt.to_host_sys_log,
         &opt.to_port_sys_log.to_string(),
-        &opt.log_level.to_string(),
+        &opt.log_level,
         &opt.handler_name,
     )
     .chain_err(|| "Error initializing syslog")?;
@@ -83,7 +83,7 @@ fn udp_send() -> Result<()> {
         BufferedSocketReader::new(&opt.socket_path, writer)
             .chain_err(|| "Error creating buffered socket reader")?;
     Command::new("renice")
-        .args(&["-n", "-10", "-p", &process::id().to_string()])
+        .args(["-n", "-10", "-p", &process::id().to_string()])
         .spawn()
         .chain_err(|| CommandError("renice".to_string()))?;
 

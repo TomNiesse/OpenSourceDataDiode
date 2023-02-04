@@ -103,7 +103,7 @@ impl InnerUdpReceiver {
     fn update_state(&mut self, packet_header: &PacketData) -> bool {
         self.state = match (self.state, packet_header.message_type) {
             //Data when it is expected
-            (WaitingForData(total), Data) => self.handle_data_message(&packet_header, total),
+            (WaitingForData(total), Data) => self.handle_data_message(packet_header, total),
 
             //Data when it is not expected
             (_, Data) => {
@@ -112,7 +112,7 @@ impl InnerUdpReceiver {
             }
 
             //DataFirst when it is expected
-            (WaitingForFirstData, DataFirst) => self.handle_data_first_message(&packet_header),
+            (WaitingForFirstData, DataFirst) => self.handle_data_first_message(packet_header),
 
             //DataFirst when it is not expected
             (_, DataFirst) => {
@@ -120,7 +120,7 @@ impl InnerUdpReceiver {
                     "Received datafirst message when it was not expected, 
                     data messages were discarded"
                 );
-                self.handle_data_first_message(&packet_header)
+                self.handle_data_first_message(packet_header)
             }
 
             //Startup always sets sequence number to 0
