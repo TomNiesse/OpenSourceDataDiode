@@ -3,6 +3,7 @@
 members = [
 	"framework/transport_udp",
 	"protocol_handlers/ph_kafka",
+    "protocol_handlers/ph_modbus", # added modbus protocol handler
 	"protocol_handlers/ph_mock_handler",
 	"framework/osdd",
 	"statistics/statistics_handler",

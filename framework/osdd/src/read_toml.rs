@@ -37,7 +37,7 @@ pub fn read_toml(config_file: &str) -> Result<TomlConfig> {
     let mut chains: Vec<Chain> = Vec::new();
     let mut settings_option: Option<Settings> = None;
     let toml_string = fs::read_to_string(config_file)
-        .chain_err(|| ConfigurationError("Config nog found".to_string()))?;
+        .chain_err(|| ConfigurationError("Config not found".to_string()))?;
     let toml_value: Value = toml::from_str(&toml_string)
         .chain_err(|| ConfigurationError("Cannot convert config to toml".to_string()))?;
 

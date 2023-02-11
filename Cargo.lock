@@ -411,6 +411,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ph_modbus"
+version = "0.1.0"
+dependencies = [
+ "bip_utils",
+ "error-chain 0.12.4",
+ "log 0.4.17",
+ "logging",
+ "rand 0.8.5",
+ "socket_utils",
+ "spsc-bip-buffer",
+ "statistics_handler",
+ "structopt",
+]
+
+[[package]]
 name = "ph_udp"
 version = "0.1.0"
 dependencies = [

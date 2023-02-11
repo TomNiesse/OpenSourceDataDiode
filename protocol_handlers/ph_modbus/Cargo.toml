@@ -1,0 +1,15 @@
+[package]
+name = "ph_modbus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bip_utils = { path= "../../framework/bip_utils" }
+statistics_handler = { path= "../../statistics/statistics_handler" }
+logging = { path= "../../framework/logging"}
+socket_utils = { path= "../../framework/socket_utils" }
+log = "0.4.8"
+structopt = {version = "0.3.7", default-features = false}
+spsc-bip-buffer = "0.2.1"
+error-chain = "0.12.1"
+rand = "0.8.5"

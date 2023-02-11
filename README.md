@@ -47,6 +47,7 @@ The Cyber Innovation Hub is included in the Defence Cyber Strategy ([Defensie Cy
 ```bash
 # When asked, choose "Default installation".
 curl https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
 ```
 
 After Rust is installed, add extra build targets:
@@ -58,28 +59,68 @@ rustup target add aarch64-unknown-linux-gnu # optional
 
 #### Docker
 ```bash
-sudo apt install docker.io
+sudo apt install docker.io make
 sudo usermod -aG docker $USER
 sudo reboot
 ```
 
 ## Building the framework
-Run the build script in the scripts folder:
-```sh
-cd scripts
-./create_tars.sh
-```
+Run 
 
-This scripts builds the repository in release and in MUSL release, it create docker images and create two tars. One for the ingress proxy and one for the egress proxy.
+```make```
 
-Copy the tars to your target systems, unpack them and install the *osdd* service. Match the configuration file to your system and start the osdd service.
+with project root as present working directory.
+
+That's it.
+
+### More information regarding the build process
+
+The Makefile in this fork is backwards-compatible with all the existing build scripts, but makes it possible to build for 3 targets:
+
+- `x86_64-unknown-linux-musl`
+- `x86_64-unknown-linux-gnu` (default)
+- `aarch64-unknown-linux-gnu`
+
+To change the selected build target, open the Makefile in any text exitor and uncomment the desired target. Then, execute `make clobber` to get rid of any stale files. **WARNING: THIS WILL ALSO DELETE ALL DOCKER CONTAINERS! YOU HAVE BEEN WARNED!**
+
+Then, when the `make` command is executed again, the framework will be built for that selected target. It will be necessary to install some more dependencies, but cargo will explain what is missing during any build.
+
+### "Old" build process, using scripts
+
+~~Run the build script in the scripts folder:~~\
+~~cd scripts\
+./create_tars.sh~~
+
+~~This scripts builds the repository in release and in MUSL release, it create docker images and create two tars. One for the ingress proxy and one for the egress proxy.~~
+
+~~Copy the tars to your target systems, unpack them and install the *osdd* service. Match the configuration file to your system and start the *osdd* service.~~
 
 ### Build result
-This build results in two tar files, one for the ingress proxy, one for the egress proxy. Both tar files contain the OSDD service (executable and definition) and a bunch of exported docker containers. 
+This build results in two tar files (`scripts/osdd_ingress.tar.gz` and `scripts/osdd_egress.tar.gz`). One is for the ingress proxy, the other for the egress proxy. Both tar files contain the OSDD service (executable and definition) and a bunch of exported docker containers.
 
-### Installation
-There is a brief installation document available:
-[general_docs/installation.md](general_docs/installation.md)
+## Preparing the Ubuntu-based proxies
+### Create user `osdd`
+```bash
+sudo adduser osdd # Choose any password when asked
+sudo mkdir /home/osdd
+sudo chown osdd:osdd /home/osdd -R
+```
+
+### Install Docker
+```bash
+sudo apt install docker.io
+sudo usermod -aG docker osdd
+```
+
+## Installing the built framework on a proxy
+Copy either `scripts/osdd_ingress.tar` or `scripts/osdd_egress.tar` to the chosen proxy. Then run the following commands to install the *osdd* service:
+
+```bash
+# **TODO: PUT COMMANDS HERE**
+# 
+# I will add the commands at a later time. For now, refer to the `general_docs/installation.md` file.
+```
+
 
 ### Configuration
 There is a brief configuration document available:
