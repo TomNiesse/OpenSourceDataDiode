@@ -27,6 +27,11 @@ use std::thread::JoinHandle;
 use std::str::FromStr;
 use bip_utils::read_from_bip_buffer;
 use spsc_bip_buffer::BipBufferWriter;
+use std::ffi::OsStr;
+
+#[path = "./fuse/diode_fs.rs"]
+mod diode_fs;
+use diode_fs::{DiodeFS, FilesystemCommit};
 
 fn main() {
     let opt = arguments::OptIngress::from_args();
@@ -39,6 +44,11 @@ fn main() {
         opt.handler_name.as_str(),
     ).expect("Could not set syslog");
 
+    // FilesystemCommit tests
+    let test1 = FilesystemCommit::rename("ayylmao".to_string(), 69, "ayylmao2".to_string(), 420);
+    let bytes1 = test1.to_bytes();
+    let test2 = FilesystemCommit::from_bytes(bytes1);
+
     // Create a shared bip buffer
     let (bip_writer, bip_reader) = bip_buffer_with_len(MAX_BIP_BUFFER_MESSAGE_SIZE * opt.bip_buffer_element_count as usize);
     let bip_reader_guard = Arc::new(Mutex::new(bip_reader));
@@ -48,7 +58,7 @@ fn main() {
 
     // Start a thread that forwards data to the other side of the data diode
     let fec_resend_count = opt.fec_resend_count;
-    threads.push(thread::spawn(move || {
+    threads.push(thread::spawn(move||{
         let mut _bip_reader = bip_reader_guard.clone();
         let mut socket_writer = SocketWriter::start_listening(&opt.socket_path).expect("Failed to create socket_writer");
         loop {
@@ -62,7 +72,34 @@ fn main() {
         }
     }));
 
-    // TODO: implement fuse things
+    // Create a DiodeFS object
+    let diode_fs = DiodeFS::new();
+    // Make sure the filesystem and commits can be accessed from the outside
+    let filesystem_items = diode_fs.get_filesystem_items();
+    let filesystem_commits = diode_fs.get_filesystem_commits();
+
+    // Start a thread that mounts a fuse filesystem
+    threads.push(thread::spawn(move||{
+        let mountpoint = "/fusemount".to_string();   // TODO: MAKE THIS A CONFIG OPTION IF POSSIBLE
+        let options = [OsStr::new("-o"), OsStr::new("atomic_o_trunc")];
+        println!("Starting to mount filesystem");
+        let _ = fuse::mount(diode_fs, mountpoint, &options);
+    }));
+
+    // // Start a thread that sends every filesystem commit over udp
+    // let _filesystem_commits = filesystem_commits.clone();
+    threads.push(thread::spawn(move||{
+        loop {
+            if !filesystem_commits.lock().unwrap().is_empty() {
+                let bytes = filesystem_commits.lock().unwrap()[0].to_bytes();
+                println!("Send filesystem commit data: {:?}", &bytes);
+                write_to_bip_buffer(&mut bip_writer_guard.lock().unwrap(), &bytes);
+                filesystem_commits.lock().unwrap().remove(0);
+            }
+            // Sleep for a few milleseonds to allow the FS thread to do stuff
+            thread::sleep(Duration::from_millis(10)); // TODO: MAKE THIS A CONFIG OPTION
+        }
+    }));
 
     // Wait for all threads to end before shutting down
     for thread in threads {

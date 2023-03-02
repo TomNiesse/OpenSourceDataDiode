@@ -119,9 +119,15 @@ impl Handler {
         if let Some(port) = self.udp_port_option {
             command.args(&[format!("--publish={port}:{port}/udp")]);
         }
+        //if "open_tcp_port" is given to the handler then publish on the same port
         if let Some(port) = self.tcp_port_option {
             command.args(&[format!("--publish={port}:{port}")]);
         }
+        //Add magic admin command for FUSE
+        //TODO: DON'T HARDCODE THIS! AT LEAST MAKE IT A CONFIG OPTION OR SOMETHING!
+        command.args([
+            "--cap-add", "SYS_ADMIN --device /dev/fuse",
+        ]);
 
         //short name is needed for the correct naming format
         let handler_type_short_name = match self.handler_type {

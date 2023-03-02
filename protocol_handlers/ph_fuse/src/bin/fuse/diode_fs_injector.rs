@@ -7,8 +7,7 @@ use libc::O_APPEND;
 
 pub struct DiodeFSInjector {
     pub filesystem_items: Arc<Mutex<Vec<FilesystemItem>>>,
-    pub filesystem_commits_todo: Arc<Mutex<Vec<FilesystemCommit>>>,
-    pub filesystem_commits_done: Arc<Mutex<Vec<FilesystemCommit>>>,
+    pub filesystem_commits: Arc<Mutex<Vec<FilesystemCommit>>>
 }
 
 impl DiodeFSInjector {
@@ -40,12 +39,19 @@ impl DiodeFSInjector {
                 let dirname = commit.get_name();
                 self.rmdir(dirname);
             }
+            CommitType::Rename => {
+                let name = commit.get_name();
+                let parent_inode = commit.get_parent_inode().unwrap();
+                let new_name = commit.get_new_name().unwrap();
+                let new_parent_inode = commit.get_new_parent_inode().unwrap();
+                self.rename(name, parent_inode, new_name, new_parent_inode);
+            }
             _ => todo!()
         }
     }
     pub fn create(&mut self, name: String, parent_inode: u64, flags: u32) {
         // Add to commits
-        self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::create(name.clone(), parent_inode, flags));
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::create(name.clone(), parent_inode, flags));
 
         // Create the file
         if !name.is_empty() {
@@ -83,7 +89,7 @@ impl DiodeFSInjector {
             if item.get_inode() == inode {
                 // Add to commits
                 let name = item.get_name();
-                self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::write(name, inode, data.clone(), data_offset, flags));
+                self.filesystem_commits.lock().unwrap().push(FilesystemCommit::write(name, inode, data.clone(), data_offset, flags));
 
                 // Get current data from file
                 let mut file_data = item.get_data();
@@ -107,7 +113,7 @@ impl DiodeFSInjector {
     }
     pub fn unlink(&self, name: String) {
         // Add to commits
-        self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::unlink(name.clone()));
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::unlink(name.clone()));
 
         // Perform the unlink task
         let mut found: bool = false;
@@ -125,7 +131,7 @@ impl DiodeFSInjector {
     }
     pub fn mkdir(&self, name: String, parent_inode: u64) {
         // Add to commits
-        self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::mkdir(name.clone(), parent_inode));
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::mkdir(name.clone(), parent_inode));
         // Think up some attibutes
         let items_length = self.filesystem_items.lock().unwrap().len();
         let attr = FileAttr {
@@ -180,6 +186,19 @@ impl DiodeFSInjector {
             // If the directory is empty, delete it
             if directory_empty {
                 self.filesystem_items.lock().unwrap().remove(item_index);
+            }
+        }
+    }
+    pub fn rename(&mut self, name: String, parent_inode: u64, new_name: String, new_parent_inode: u64) {
+        // Add to commits
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::rename(name.clone(), parent_inode, new_name.clone(), new_parent_inode));
+        // Rename the file
+        for item in self.filesystem_items.lock().unwrap().iter_mut() {
+            let name = item.get_name();
+            if item.get_name() == name && item.get_parent_inode() == parent_inode {
+                item.set_name(new_name);
+                item.set_parent_inode(new_parent_inode);
+                break;
             }
         }
     }

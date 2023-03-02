@@ -18,6 +18,11 @@ protocol_handler = "kafka2"
 filter_handlers = ["secret_filter"]
 transport_handler = "udp2"
 
+[chain.TestTopic3]
+protocol_handler = "fuse"
+filter_handlers = []
+transport_handler = "udp4"
+
 [chain.stats]
 protocol_handler = "stats"
 filter_handlers = []
@@ -40,6 +45,13 @@ host_kafka_server = "10.0.0.1"
 port_kafka_server = "9092"
 log_level = "Info"
 bip_buffer_element_count = "2"
+
+[protocolhandler.fuse]
+type = "ph_fuse_ingress"
+topic_name = "TestTopic3"
+log_level = "Info"
+bip_buffer_element_count = "2"
+
 
 [protocolhandler.stats]
 type = "ph_udp_ingress"
@@ -83,6 +95,16 @@ receiver_address = "192.168.0.255"
 receiver_port = "1236"
 sender_address = "192.168.0.255"
 sender_port = "1236"
+bip_buffer_element_count = "2"
+send_delay_ms = "5"
+log_level = "Info"
+
+[transporthandler.udp4]
+type = "transport_udp_send"
+receiver_address = "192.168.0.255"
+receiver_port = "1237"
+sender_address = "192.168.0.255"
+sender_port = "1237"
 bip_buffer_element_count = "2"
 send_delay_ms = "5"
 log_level = "Info"

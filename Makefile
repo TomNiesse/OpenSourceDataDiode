@@ -1,7 +1,7 @@
 # Execute `make clobber` after any target change
-# TARGET = x86_64-unknown-linux-musl
- TARGET = x86_64-unknown-linux-gnu
-#TARGET = aarch64-unknown-linux-gnu
+# TARGET = x86_64-unknown-linux-musl TODO: since ph_fuse, this might be broken now
+TARGET = x86_64-unknown-linux-gnu
+# TARGET = aarch64-unknown-linux-gnu TODO: since ph_fuse, this is now broken. it will still work if FUSE support is not needed
 
 DOCKER_IMAGES_INGRESS = ph_kafka_ingress transport_udp_send ph_mock_ingress ph_modbus_ingress ph_fuse_ingress ph_udp_ingress filter
 DOCKER_IMAGES_EGRESS = ph_kafka_egress transport_udp_receive ph_mock_egress ph_modbus_egress ph_fuse_egress ph_udp_egress filter
@@ -41,7 +41,8 @@ binaries: Makefile
 ifeq ($(strip $(TARGET)),aarch64-unknown-linux-gnu)
 	RUSTFLAGS='-C target-feature=+crt-static -C linker=aarch64-linux-gnu-gcc' cargo build --target $(TARGET) --release
 else
-	RUSTFLAGS='-C target-feature=+crt-static' cargo build --target $(TARGET) --release
+	# TODO: fix not being able to use ```RUSTFLAGS='-C target-feature=+crt-static'``` anymore
+	cargo build --target $(TARGET) --release
 endif
 
 docker_images: Makefile

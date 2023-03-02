@@ -16,8 +16,7 @@ include!("filesystem_commit.rs");
 
 pub struct DiodeFS {
     filesystem_items: Arc<Mutex<Vec<FilesystemItem>>>,
-    filesystem_commits_todo: Arc<Mutex<Vec<FilesystemCommit>>>,
-    filesystem_commits_done: Arc<Mutex<Vec<FilesystemCommit>>>
+    filesystem_commits: Arc<Mutex<Vec<FilesystemCommit>>>
 }
 
 impl DiodeFS {
@@ -46,19 +45,17 @@ impl DiodeFS {
                 flags: 0,
             }
         ));
-        // Create commit buffers
-        let filesystem_commits_todo: Arc<Mutex<Vec<FilesystemCommit>>> = Arc::new(Mutex::new(vec![]));
-        let filesystem_commits_done: Arc<Mutex<Vec<FilesystemCommit>>> = Arc::new(Mutex::new(vec![]));
+        // Create commit buffer
+        let filesystem_commits: Arc<Mutex<Vec<FilesystemCommit>>> = Arc::new(Mutex::new(vec![]));
 
         Self {
             filesystem_items,
-            filesystem_commits_todo: filesystem_commits_todo.clone(),
-            filesystem_commits_done: filesystem_commits_done.clone()
+            filesystem_commits: filesystem_commits.clone()
         }
     }
     pub fn _create(&mut self, name: String, parent_inode: u64, flags: u32, reply: Option<ReplyCreate>) {
         // Add to commits
-        self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::create(name.clone(), parent_inode, flags));
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::create(name.clone(), parent_inode, flags));
 
         // Create the file
         if !name.is_empty() {
@@ -102,7 +99,7 @@ impl DiodeFS {
             if item.get_inode() == inode {
                 // Add to commits
                 let name = item.get_name();
-                self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::write(name, inode, data.clone(), data_offset, flags));
+                self.filesystem_commits.lock().unwrap().push(FilesystemCommit::write(name, inode, data.clone(), data_offset, flags));
 
                 // Get current data from file
                 let mut file_data = item.get_data();
@@ -134,7 +131,7 @@ impl DiodeFS {
     }
     pub fn _unlink(&self, name: String, reply: Option<ReplyEmpty>) {
         // Add to commits
-        self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::unlink(name.clone()));
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::unlink(name.clone()));
 
         // Perform the unlink task
         let mut found: bool = false;
@@ -159,7 +156,7 @@ impl DiodeFS {
     }
     pub fn _mkdir(&self, name: String, parent_inode: u64, reply: Option<ReplyEntry>) {
         // Add to commits
-        self.filesystem_commits_done.lock().unwrap().push(FilesystemCommit::mkdir(name.clone(), parent_inode));
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::mkdir(name.clone(), parent_inode));
         // Think up some attibutes
         let items_length = self.filesystem_items.lock().unwrap().len();
         let attr = FileAttr {
@@ -225,19 +222,34 @@ impl DiodeFS {
             }
         }
         // Reply with "function not implemented".
-        // This FS implementation will simply not delete non-empty folders.
+        // TODO: auto delete a folder recursively,
+        // since UI would be more intuitive that way.
         if reply.is_some() {
             reply.unwrap().error(ENOSYS);
+        }
+    }
+    pub fn _rename(&mut self, name: String, parent_inode: u64, new_name: String, new_parent_inode: u64, reply: Option<ReplyEmpty>) {
+        // Add to commits
+        self.filesystem_commits.lock().unwrap().push(FilesystemCommit::rename(name.clone(), parent_inode, new_name.clone(), new_parent_inode));
+        // Rename the file
+        for item in self.filesystem_items.lock().unwrap().iter_mut() {
+            let name = item.get_name();
+            if item.get_name() == name && item.get_parent_inode() == parent_inode {
+                item.set_name(new_name);
+                item.set_parent_inode(new_parent_inode);
+                break;
+            }
+        }
+        // Let the OS know we did some work
+        if reply.is_some() {
+            reply.unwrap().ok();
         }
     }
     pub fn get_filesystem_items(&self) -> Arc<Mutex<Vec<FilesystemItem>>> {
         self.filesystem_items.clone()
     }
-    pub fn get_filesystem_commits_todo(&self) -> Arc<Mutex<Vec<FilesystemCommit>>> {
-        self.filesystem_commits_todo.clone()
-    }
-    pub fn get_filesystem_commits_done(&self) -> Arc<Mutex<Vec<FilesystemCommit>>> {
-        self.filesystem_commits_done.clone()
+    pub fn get_filesystem_commits(&self) -> Arc<Mutex<Vec<FilesystemCommit>>> {
+        self.filesystem_commits.clone()
     }
 }
 
@@ -317,5 +329,8 @@ impl Filesystem for DiodeFS {
     }
     fn rmdir(&mut self, _req: &Request, _parent: u64, name: &OsStr, reply: ReplyEmpty) {
         self._rmdir(name.to_str().unwrap().to_string(), Some(reply));
+    }
+    fn rename(&mut self, _req: &Request, parent_inode: u64, name: &OsStr, new_parent_inode: u64, new_name: &OsStr, reply: ReplyEmpty) {
+        self._rename(name.to_str().unwrap().to_string(), parent_inode, new_name.to_str().unwrap().to_string(), new_parent_inode, Some(reply));
     }
 }
