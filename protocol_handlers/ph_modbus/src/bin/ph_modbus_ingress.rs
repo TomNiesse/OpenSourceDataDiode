@@ -68,7 +68,6 @@ fn main() {
             let length = read_from_bip_buffer(&mut _bip_reader.lock().unwrap(), &mut buffer);
             if length > 0 {
                 for _ in 0..fec_resend_count+1 {
-                    log::info!("SEND: {:?}", &buffer[..length]);
                     socket_writer.send_data(&mut buffer[..length]).expect("Failed to send data");
                 }
             }

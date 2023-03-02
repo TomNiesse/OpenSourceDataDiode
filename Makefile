@@ -3,8 +3,8 @@
  TARGET = x86_64-unknown-linux-gnu
 #TARGET = aarch64-unknown-linux-gnu
 
-DOCKER_IMAGES_INGRESS = ph_kafka_ingress transport_udp_send ph_mock_ingress ph_modbus_ingress ph_udp_ingress filter
-DOCKER_IMAGES_EGRESS = ph_kafka_egress transport_udp_receive ph_mock_egress ph_modbus_egress ph_udp_egress filter
+DOCKER_IMAGES_INGRESS = ph_kafka_ingress transport_udp_send ph_mock_ingress ph_modbus_ingress ph_fuse_ingress ph_udp_ingress filter
+DOCKER_IMAGES_EGRESS = ph_kafka_egress transport_udp_receive ph_mock_egress ph_modbus_egress ph_fuse_egress ph_udp_egress filter
 
 TARS_INGRESS = $(addprefix dockers/,$(addsuffix .tar,$(DOCKER_IMAGES_INGRESS)))
 TARS_EGRESS = $(addprefix dockers/,$(addsuffix .tar,$(DOCKER_IMAGES_EGRESS)))

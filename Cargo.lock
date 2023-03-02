@@ -219,6 +219,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 
 [[package]]
+name = "fuse"
+version = "0.4.0-dev"
+source = "git+https://github.com/zargony/fuse-rs?rev=39fde4a#39fde4a5c47ce370d228ac190f950bd835db7f47"
+dependencies = [
+ "fuse-abi",
+ "fuse-sys",
+ "libc",
+ "log 0.4.17",
+ "thread-scoped",
+]
+
+[[package]]
+name = "fuse-abi"
+version = "0.4.0-dev"
+source = "git+https://github.com/zargony/fuse-rs?rev=39fde4a#39fde4a5c47ce370d228ac190f950bd835db7f47"
+
+[[package]]
+name = "fuse-sys"
+version = "0.4.0-dev"
+source = "git+https://github.com/zargony/fuse-rs?rev=39fde4a#39fde4a5c47ce370d228ac190f950bd835db7f47"
+dependencies = [
+ "pkg-config",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -272,6 +297,18 @@ checksum = "df004cfca50ef23c36850aaaa59ad52cc70d0e90243c3c7737a4dd32dc7a3c4f"
 dependencies = [
  "quick-error",
 ]
+
+[[package]]
+name = "itoa"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fad582f4b9e86b6caa621cabeb0963332d92eea04729ab12892c2533951e6440"
+
+[[package]]
+name = "json"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "078e285eafdfb6c4b434e0d31e8cfcb5115b651496faca5749b88fafd4f23bfd"
 
 [[package]]
 name = "kafka"
@@ -377,6 +414,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "ph_fuse"
+version = "0.1.0"
+dependencies = [
+ "bip_utils",
+ "error-chain 0.12.4",
+ "fuse",
+ "json",
+ "libc",
+ "log 0.4.17",
+ "logging",
+ "rand 0.8.5",
+ "serde_json",
+ "socket_utils",
+ "spsc-bip-buffer",
+ "statistics_handler",
+ "structopt",
+ "time 0.3.20",
+]
+
+[[package]]
 name = "ph_kafka"
 version = "0.1.0"
 dependencies = [
@@ -438,6 +495,12 @@ dependencies = [
  "statistics_handler",
  "structopt",
 ]
+
+[[package]]
+name = "pkg-config"
+version = "0.3.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ac9a59f73473f1b8d852421e59e64809f025994837ef743615c6d0c5b305160"
 
 [[package]]
 name = "ppv-lite86"
@@ -641,6 +704,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ef03e0a2b150c7a90d01faf6254c9c48a41e95fb2a8c2ac1c6f0d2b9aefc342"
 
 [[package]]
+name = "ryu"
+version = "1.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b4b9743ed687d4b4bcedf9ff5eaa7398495ae14e61cba0a295704edbc7decde"
+
+[[package]]
 name = "serde"
 version = "1.0.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -658,6 +727,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.93"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cad406b69c91885b5107daf2c29572f6c8cdb3c66826821e286c533490c0bc76"
+dependencies = [
+ "itoa",
+ "ryu",
+ "serde",
 ]
 
 [[package]]
@@ -764,7 +844,7 @@ dependencies = [
  "error-chain 0.12.4",
  "libc",
  "log 0.4.17",
- "time",
+ "time 0.1.45",
 ]
 
 [[package]]
@@ -786,6 +866,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "thread-scoped"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcbb6aa301e5d3b0b5ef639c9a9c7e2f1c944f177b460c04dc24c69b1fa2bd99"
+
+[[package]]
 name = "time"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -795,6 +881,22 @@ dependencies = [
  "wasi 0.10.0+wasi-snapshot-preview1",
  "winapi",
 ]
+
+[[package]]
+name = "time"
+version = "0.3.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd0cbfecb4d19b5ea75bb31ad904eb5b9fa13f21079c3b92017ebdf4999a5890"
+dependencies = [
+ "serde",
+ "time-core",
+]
+
+[[package]]
+name = "time-core"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e153e1f1acaef8acc537e68b44906d2db6436e2b35ac2c6b42640fff91f00fd"
 
 [[package]]
 name = "toml"
