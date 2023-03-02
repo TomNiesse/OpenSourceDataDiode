@@ -32,7 +32,7 @@ ifeq ($(strip $(TARGET)),aarch64-unknown-linux-gnu)
 else
 	docker build -t $(notdir $(basename $@)) scripts --build-arg file=$(notdir $(basename $@));
 endif
-	rm $(notdir $(basename $@)) | true
+	# rm $(notdir $(basename $@)) | true
 	docker save $(notdir $(basename $@)) > scripts/dockers/$(notdir $(basename $@)).tar
 
 binaries: Makefile
@@ -41,17 +41,17 @@ binaries: Makefile
 ifeq ($(strip $(TARGET)),aarch64-unknown-linux-gnu)
 	RUSTFLAGS='-C target-feature=+crt-static -C linker=aarch64-linux-gnu-gcc' cargo build --target $(TARGET) --release
 else
-	# TODO: fix not being able to use ```RUSTFLAGS='-C target-feature=+crt-static'``` anymore
+	# TODO: fix not being able to use ```RUSTFLAGS='-C target-feature=+crt-static'``` anymore due to ph_fuse
 	cargo build --target $(TARGET) --release
 endif
 
 docker_images: Makefile
 	$(MAKE) $(addsuffix .tar,$(addprefix scripts/dockers/,$(DOCKER_IMAGES_INGRESS)))
 	$(MAKE) $(addsuffix .tar,$(addprefix scripts/dockers/,$(DOCKER_IMAGES_EGRESS)))
-	rm $(addprefix scripts/,$(DOCKER_IMAGES_INGRESS)) $(addprefix scripts/,$(DOCKER_IMAGES_EGRESS)) 2> /dev/null | true
+	# rm $(addprefix scripts/,$(DOCKER_IMAGES_INGRESS)) $(addprefix scripts/,$(DOCKER_IMAGES_EGRESS)) 2> /dev/null | true
 
 clean:
-	rm -rf scripts/dockers/* scripts/osdd_ingress.tar.gz scripts/osdd_egress.tar.gz
+	rm -rf scripts/dockers/* scripts/filter scripts/ph_* scripts/transport_* scripts/osdd_ingress.tar.gz scripts/osdd_egress.tar.gz
 
 distclean: clean
 	rm -rf target/

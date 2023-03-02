@@ -115,6 +115,7 @@ fn read_handler(handler_config: (&String, &Value), handler_type: HandlerType) ->
     let mut executable_option: Option<&str> = None;
     let mut udp_port_option: Option<u16> = None;
     let mut tcp_port_option: Option<u16> = None;
+    let mut allow_fuse_operations_option: Option<bool> = None;
     let mut arguments = Vec::new();
 
     //read arguments from the handler_config.
@@ -168,6 +169,27 @@ fn read_handler(handler_config: (&String, &Value), handler_type: HandlerType) ->
                             }
                         }
                     }
+                    "allow_fuse_operations" => {
+                        allow_fuse_operations_option = match argument.1.as_str() {
+                            Some(x) => Some(match x.parse::<bool>() {
+                                Ok(v) => v,
+                                Err(_) => {
+                                    return Err(ConfigurationError(format!(
+                                        "Cannot parse open udp port to a port in {}",
+                                        handler_config.0
+                                    ))
+                                    .into())
+                                }
+                            }),
+                            None => {
+                                return Err(ConfigurationError(format!(
+                                    "Cannot parse open udp port to a port in {}",
+                                    handler_config.0
+                                ))
+                                .into())
+                            }
+                        }
+                    }
                     //All other arguments are arguments for the handler
                     _ => arguments.push((argument.0.to_string(), x.to_string())),
                 }
@@ -184,6 +206,7 @@ fn read_handler(handler_config: (&String, &Value), handler_type: HandlerType) ->
             outgoing_socket: None,
             udp_port_option,
             tcp_port_option,
+            allow_fuse_operations_option
         })
     } else {
         Err(ConfigurationError(format!(

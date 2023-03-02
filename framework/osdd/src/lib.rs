@@ -82,6 +82,7 @@ pub struct Handler {
     outgoing_socket: Option<String>,
     udp_port_option: Option<u16>,
     tcp_port_option: Option<u16>,
+    allow_fuse_operations_option: Option<bool>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -123,11 +124,18 @@ impl Handler {
         if let Some(port) = self.tcp_port_option {
             command.args(&[format!("--publish={port}:{port}")]);
         }
-        //Add magic admin command for FUSE
-        //TODO: DON'T HARDCODE THIS! AT LEAST MAKE IT A CONFIG OPTION OR SOMETHING!
-        command.args([
-            "--cap-add", "SYS_ADMIN --device /dev/fuse",
-        ]);
+        //Add magic admin commands option for FUSE
+        if self.allow_fuse_operations_option.is_some() && self.allow_fuse_operations_option.unwrap() == true {
+            // allow FUSE
+            command.args([
+                "--cap-add", "SYS_ADMIN --device /dev/fuse",
+            ]);
+            // mount /fusemount folder in /home/osdd
+            // TODO: perhaps not hardcode the host os mount dir
+            command.args([
+                "--mount", "source=/home/osdd/fusemount,target=/fusemount"
+            ]);
+        }
 
         //short name is needed for the correct naming format
         let handler_type_short_name = match self.handler_type {

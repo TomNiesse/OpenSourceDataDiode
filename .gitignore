@@ -2,3 +2,6 @@ target
 target/*
 scripts/*.tar.gz
 scripts/dockers/*
+scripts/filter
+scripts/ph_*
+scripts/transport_*

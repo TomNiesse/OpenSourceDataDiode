@@ -51,7 +51,7 @@ type = "ph_fuse_ingress"
 topic_name = "TestTopic3"
 log_level = "Info"
 bip_buffer_element_count = "2"
-
+allow_fuse_operations = "true"
 
 [protocolhandler.stats]
 type = "ph_udp_ingress"

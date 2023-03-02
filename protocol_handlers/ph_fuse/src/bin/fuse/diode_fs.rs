@@ -235,9 +235,18 @@ impl DiodeFS {
         for item in self.filesystem_items.lock().unwrap().iter_mut() {
             let name = item.get_name();
             if item.get_name() == name && item.get_parent_inode() == parent_inode {
-                item.set_name(new_name);
-                item.set_parent_inode(new_parent_inode);
-                break;
+                if parent_inode == new_parent_inode {
+                    item.set_name(new_name);
+                    item.set_parent_inode(new_parent_inode);
+                    break;
+                } else {
+                    // TODO: Moving a file to another folder breaks everything,
+                    // so it's not supported for now. It should be supported though.
+                    if reply.is_some() {
+                        reply.unwrap().error(ENOSYS);
+                    }
+                    return;
+                }
             }
         }
         // Let the OS know we did some work
