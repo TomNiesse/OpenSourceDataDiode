@@ -8,10 +8,10 @@ sudo chown osdd:osdd /home/osdd -R
 sudo cp /tmp/osdd.service /etc/systemd/system
 for docker_image in /tmp/*.tar
 do
-    sudo docker rm `basename $docker_image .tar`
+    sudo docker image rm `basename $docker_image .tar`
     sudo docker load -i $docker_image
 done
 sudo docker images
 sudo systemctl daemon-reload
 sudo systemctl start osdd
-# sudo systemctl enable osdd # optional
+sudo systemctl enable osdd # optional
